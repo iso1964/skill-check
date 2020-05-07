@@ -69,10 +69,10 @@ public class Q006 {
                 }
             );
 
-        return values.toString()
+            return values.toString()
             .replaceAll("[,\\[\\]]", "")  // 複数値残存時(演算子なし)は、空白文字区切りで戻す
-            .replaceAll("(\\.[0-9]+)0+$", "$1").replaceAll("\\.0+$", "");   // 演算結果で、冗長となる小数点以下の0終端を丸める
-    }
+            .replaceAll("(\\.[0-9]*[1-9]+)0+$", "$1").replaceAll("\\.0*$", "");   // 演算結果で、冗長となる小数点以下の0終端を丸める
+}
 
     public static void main(final String[] args) {
         final Scanner scan = new Scanner(System.in);
