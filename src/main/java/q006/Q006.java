@@ -1,11 +1,12 @@
 package q006;
 
-import q006.value.DecimalValue;
-import q006.value.IValue;
-import q006.value.PlusValue;
+import q006.value.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Stack;
 
 /**
  * Q006 空気を読んで改修
@@ -37,18 +38,65 @@ public class Q006 {
     private static List<IValue> parseLine(String lineText) {
         List<IValue> resultList = new ArrayList<>();
         // 空白文字で区切ってループする
-        for (String text: lineText.split("[\\s]+")) {
-            // TODO 一部処理だけ実装
+        for (String text : lineText.split("[\\s]+")) {
             switch (text) {
-                case "+":   // 足し算
+                case "+":  // 加算
                     resultList.add(new PlusValue());
                     break;
-                default:    // その他は数値として扱う
+                case "-":  // 減算
+                    resultList.add(new MinusValue());
+                    break;
+                case "*":  // 積算
+                    resultList.add(new MultiValue());
+                    break;
+                case "/":  // 除算
+                    resultList.add(new DivideValue());
+                    break;
+                default:   // その他は数値として扱う
                     resultList.add(new DecimalValue(text));
                     break;
             }
         }
         return resultList;
+    }
+
+    public static String calcRPN(final String input) {
+        final Stack<BigDecimal> values = new Stack<>();
+        parseLine(input.trim())
+            .forEach(
+                iValue -> {
+                    iValue.execute(values);
+                }
+            );
+
+        return values.toString()
+            .replaceAll("[,\\[\\]]", "")  // 複数値残存時(演算子なし)は、空白文字区切りで戻す
+            .replaceAll("(\\.[0-9]+)0+$", "$1").replaceAll("\\.0+$", "");   // 演算結果で、冗長となる小数点以下の0終端を丸める
+    }
+
+    public static void main(final String[] args) {
+        final Scanner scan = new Scanner(System.in);
+        String value = "";
+
+        String input = "";
+        System.out.print("> ");
+        do {
+            input = scan.nextLine();
+            if (input.isEmpty()) {
+                break;
+            }
+
+            try {
+                value = calcRPN((value + " " + input).trim());
+
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+
+            System.out.print(("> " + value).trim() + " " );
+
+        } while (true);
+        scan.close();
     }
 }
 // 完成までの時間: xx時間 xx分

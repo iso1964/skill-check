@@ -1,0 +1,7 @@
+Input                 | ExpectedExceptionName
+----------------------+-----------------------------------------
+"6 3 )"               | "java.lang.NumberFormatException"
+""                    | "java.lang.NumberFormatException"
+"6 +"                 | "java.util.EmptyStackException"
+"/"                   | "java.util.EmptyStackException"
+"3 0 /"               | "java.lang.ArithmeticException"
