@@ -1,4 +1,7 @@
- package q007.maze;                                                                                                                                                                                                                                                
+package q007;
+
+import q007.maze.*;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
