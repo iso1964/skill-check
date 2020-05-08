@@ -60,22 +60,19 @@ public class Q006 {
         return resultList;
     }
 
-    public static String calcRPN(final String input) {
-        final Stack<BigDecimal> values = new Stack<>();
-        parseLine(input.trim())
-            .forEach(
-                iValue -> {
-                    iValue.execute(values);
-                }
-            );
+    public static String calcRPN(String input) {
+        Stack<BigDecimal> values = new Stack<>();
+        for (IValue iValue : parseLine(input.trim())) {
+            iValue.execute(values);
+        }
 
-            return values.toString()
+        return values.toString()
             .replaceAll("[,\\[\\]]", "")  // 複数値残存時(演算子なし)は、空白文字区切りで戻す
             .replaceAll("(\\.[0-9]*[1-9]+)0+$", "$1").replaceAll("\\.0*$", "");   // 演算結果で、冗長となる小数点以下の0終端を丸める
 }
 
-    public static void main(final String[] args) {
-        final Scanner scan = new Scanner(System.in);
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
         String value = "";
 
         String input = "";

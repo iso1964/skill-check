@@ -34,9 +34,10 @@ XXXXXXXXX
 public class Q007 {
     public static void main(String[] args) {
         doDijkstra(args);
-        //doDijkstraN(100);  // デバッグ用 100回コール
+        //doDijkstra(100);  // デバッグ用 100回コール
     }
 
+    // １回実施
     private static void doDijkstra(String[] args) {
         var mazeData = makeMazeData(args.length > 0 ? args[0] : null);
 
@@ -44,20 +45,8 @@ public class Q007 {
         System.out.println("    → 最短コスト: " + mazeData.minCost());
     }
 
-    private static MazeData makeMazeData(String filepath) {
-        if (filepath == null) {  // MazeInputStreamでランダム生成
-            return new MazeData(null);
-        }
-
-        if ("/".equals(filepath.substring(0, 1))) {  // ファイル名指定（絶対パス）
-            return new MazeData(filepath);
-        }
-
-        // ファイル名指定
-        return new MazeData(System.getProperty("user.dir") + "/" + filepath);
-    }
-
-    private static void doDijkstraN(int loop) {
+    // 繰り返し実施(デバッグ用)
+    private static void doDijkstra(int loop) {
         ArrayList<String> lines = new ArrayList<>();
         long minMs = Long.MAX_VALUE;
         long maxMs = -1;
@@ -103,4 +92,19 @@ public class Q007 {
         System.out.println(loop + "回実施: " + minMs + "ms〜" + maxMs + "ms");
     }
 
+    // MAZEデータ読み込み作成
+    private static MazeData makeMazeData(String filepath) {
+        if (filepath == null) {  // MazeInputStreamでランダム生成
+            return new MazeData(null);
+        }
+
+        if ("/".equals(filepath.substring(0, 1))) {  // ファイル名指定（絶対パス）
+            return new MazeData(filepath);
+        }
+
+        // ファイル名指定
+        return new MazeData(System.getProperty("user.dir") + "/" + filepath);
+    }
+
 }
+// 完成までの時間: xx時間 xx分
