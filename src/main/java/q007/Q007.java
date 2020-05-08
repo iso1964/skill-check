@@ -5,6 +5,7 @@ import q007.maze.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 /**
@@ -32,17 +33,17 @@ XXXXXXXXX
  */
 
 public class Q007 {
+
     public static void main(String[] args) {
         doDijkstra(args);
-        //doDijkstra(100);  // デバッグ用 100回コール
+        //doDijkstra(1000);  // デバッグ用 100回コール
     }
 
     // １回実施
     private static void doDijkstra(String[] args) {
         var mazeData = makeMazeData(args.length > 0 ? args[0] : null);
-
-        mazeData.dijkstra();
-        System.out.println("    → 最短コスト: " + mazeData.minCost());
+        var cost = mazeData.dijkstra();
+        System.out.println("    → 最短コスト: " + cost);
     }
 
     // 繰り返し実施(デバッグ用)
@@ -58,19 +59,24 @@ public class Q007 {
             System.setOut(ps);
 
             for (int i = 0; i < loop; i++) {
-                System.out.println("\n=== #" + (i + 1));
+                System.out.println("\n=== 迷路探索#" + (i + 1));
 
                 var mazeData = makeMazeData(null);
-                mazeData.dijkstra();
-                System.out.println("    → 最短コスト: " + mazeData.minCost());
 
-                if (mazeData.minCost() < 0) {
-                    String line = "#" + (i + 1) + " 経路なし";
+                System.out.println(" // 最短コスト探索 start!  " + LocalDateTime.now());
+                var startTime = System.currentTimeMillis();
 
+                var cost = mazeData.dijkstra();
+
+                var elapsedMs = System.currentTimeMillis() - startTime;
+
+                if (cost < 0) {
+                    String line = "#" + (i + 1) + " 経路なし" + "  (" + elapsedMs + "ms)";
                     System.out.println(line);
                     lines.add(line);
+
                 } else {
-                    long elapsedMs = mazeData.elapsedMs();
+                    System.out.println("    → 最短コスト: " + cost + "  (" + elapsedMs + "ms)");
                     minMs = Math.min(minMs, elapsedMs);
                     maxMs = Math.max(maxMs, elapsedMs);
                 }

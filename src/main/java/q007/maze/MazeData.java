@@ -12,40 +12,24 @@ public class MazeData extends MazeProperties {
     private static final int INITIAL_COST = 0;
     private static final int INCREMENTAL_COST = 1;
 
+    // MAZEデータ
     private List<MazeNode> nodes = new ArrayList<>();
 
+    /**
+     * MAZEデータ作成
+     * @param filepath
+     */
     public MazeData(String filepath) {
-        makeNodes(getLines(filepath));
+        makeNodes(makeMazeLines(filepath));
         validate();
     }
 
-    // 入力されたMAZEデータ
-    private ArrayList<String> lines = new ArrayList<>();
-
-    public ArrayList<String> getMazeLines() {
-        return lines;
-    }
-
-    // 時刻情報
-    private LocalDateTime startDateTime = null;
-    private long elapsedMs = -1;
-    public long elapsedMs() {
-        return elapsedMs;
-    }
-
-    // 最短コスト
-    private Integer minCost = -1;
-
-    public int minCost() {
-        return minCost;
-    }
-
-    // ダイクストラ (Dijkstra) 法ベースの探索
-    public void dijkstra() {
-        startDateTime = LocalDateTime.now();
-
-        long startTime = System.currentTimeMillis();
-        System.out.println(" // 最短コスト探索 start!  " + startDateTime);
+    /**
+     * ダイクストラ (Dijkstra) 法ベースのMAZEデータ探索
+     * @return コスト
+     */
+    public int dijkstra() {
+        Integer minCost = -1;
 
         // 最初のノードに、コスト0設定(到着ノードから遡る)
         nodes.stream()
@@ -58,7 +42,7 @@ public class MazeData extends MazeProperties {
             // 次の処理ノードを求める
             MazeNode processNode = nodes.stream()
                     .filter(node -> node.isNotDone()  // 未確定、
-                            && 0 <= node.cost())     // かつ、コスト設定済み
+                            && 0 <= node.cost())      // かつ、コスト設定済み
                     .min(Comparator.comparing(MazeNode::cost))
                     .orElse(null);
 
@@ -90,25 +74,45 @@ public class MazeData extends MazeProperties {
             int netxCost = processNode.cost() + INCREMENTAL_COST;
 
             nodes.stream()
-                    .filter(node -> Arrays.binarySearch(adjacentNodeKeys, node.getNodeKey()) >= 0
-                            && node.isNotDone()               // かつ、未確定
-                            && node.canMove()                 // かつ、壁でない(ここに移動できる)
-                            && (node.cost() < 0               // かつ、（コスト未設定、
-                                 || netxCost < node.cost()))  //        ないし、今回ルートで少ないコストに更新できる）
+                    .filter(node -> Arrays.binarySearch(adjacentNodeKeys, node.getNodeKey()) >= 0)  // 隣接ノード
+                    .filter(node -> node.isNotDone()               // 未確定
+                                 && node.canMove()                 // かつ、壁でない(ここに移動できる)
+                                 && (node.cost() < 0               // かつ、（コスト未設定、
+                                     || netxCost < node.cost()))   //        ないし、今回ルートで少ないコストに更新できる）
                     .forEach(node -> {
                         node.cost(netxCost);
-                        node.previousNodeKey(processNode.getNodeKey());
+                        node.previousNodeKey(processNode.getNodeKey());   // ルートを遡れるように設定しておく
                         System.out.print(" [ → " + node.toString() + " ]");
                     });
 
             System.out.println(" ,");
         }
 
-        elapsedMs = (System.currentTimeMillis() - startTime);
-        System.out.println(" (" + elapsedMs + "ms)");
+        return minCost;
     }
 
-    private ArrayList<String> getLines(String filepath) {
+    // MAZEデータ
+    private void makeNodes(ArrayList<String> lines) {
+        AtomicInteger y = new AtomicInteger();
+        AtomicInteger x = new AtomicInteger();
+
+        System.out.println("       " + "----+----1----+----2----+----3----+----4 …");
+        y.set(0);
+        for (String line : lines) {
+            System.out.println(" " + String.format("%4d", y.incrementAndGet()) + ": " + line);
+
+            x.set(0);
+            line.chars().forEach(c -> {
+                nodes.add(new MazeNode(x.incrementAndGet(), y.intValue(), MazeNodeType.from(c)));
+            });
+        }
+        System.out.println("       ");
+    }
+
+    // 入力されたMAZEデータ行
+    private ArrayList<String> makeMazeLines(String filepath) {
+
+        ArrayList<String> lines = new ArrayList<>();
 
         String line;
         var lineCnt = 0;
@@ -150,25 +154,6 @@ public class MazeData extends MazeProperties {
         return lines;
     }
 
-    private void makeNodes(ArrayList<String> lines) {
-        AtomicInteger y = new AtomicInteger();
-        AtomicInteger x = new AtomicInteger();
-
-        System.out.println("       " + "----+----1----+----2----+----4----+----5 …");
-        y.set(0);
-        for (String line : lines) {
-            //line = line.replaceAll("[-*|]", "X");
-
-            System.out.println(" " + String.format("%4d", y.incrementAndGet()) + ": " + line);
-
-            x.set(0);
-            line.chars().forEach(c -> {
-                nodes.add(new MazeNode(x.incrementAndGet(), y.intValue(), MazeNodeType.from(c)));
-            });
-        }
-        System.out.println("       ");
-    }
-
     private void validate() {
         long startNodeCount = nodes.stream()
                 .filter(MazeNode::isStart)
@@ -184,4 +169,5 @@ public class MazeData extends MazeProperties {
             throw new RuntimeException("[E]nd duplicated or not defined in data.");
         }
     }
+
 }
